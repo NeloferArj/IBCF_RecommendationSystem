@@ -1,4 +1,4 @@
-# Recommendation System Implemented Using IBCF
+# Recommendation System Implemented Using Item-Based Collaborative Algorithm
 
 ## Select a Genre to Get the Top 5 Movie Recommendations
 ![alt text](https://github.com/NeloferArj/MovieRecommendationSystem/blob/main/reccomendationsBasedOnGenre.PNG)
