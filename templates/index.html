@@ -5,117 +5,96 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Movie Recommendations</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-
 </head>
 <body> 
-
-
-<div class="container-fluid">
-  <div class="row">
-    <!-- Sidebar -->
-    <div class="col-md-2 bg-dark sidebar_container p-0">
-      <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical" style="margin-top:35px">
-        <button style="margin-bottom:10px" class="nav-link active" id="v-pills-system1-tab" data-bs-toggle="pill" data-bs-target="#v-pills-system1" type="button" role="tab" aria-controls="v-pills-system1" aria-selected="true">Recommender by Genre</button>
-        <button class="nav-link" id="v-pills-system2-tab" data-bs-toggle="pill" data-bs-target="#v-pills-system2" type="button" role="tab" aria-controls="v-pills-system2" aria-selected="false" onclick="fetchMovies()">Recommender by Rating</button>
-      </div>
-    </div>
-      <!-- Content -->
-      <div class="col-md-9" style="margin-left: 32px; margin-top:25px; zoom:.8">
-        <div class="tab-content" id="v-pills-tabContent">
-          <div class="tab-pane fade show active" id="v-pills-system1" role="tabpanel" aria-labelledby="v-pills-system1-tab">
-            <!-- System 1 Content (Blank for now) -->
-            <!-- You can add content related to System 1 here -->
-            <h2 style="margin-top:20px">Select a Genre for Movie Recommendations</h2>
-
-              <form action="/recommend" method="get">
-                <label for="genreSelect" class="col-sm-2 col-form-label">Choose a genre:</label>
-                <select id="genreSelect" name="genre" class="form-select">
-                  <option value="Action" {% if genre == 'Action' %} selected {% endif %}>Action</option>
-                  <option value="Adventure" {% if genre == 'Adventure' %} selected {% endif %}>Adventure</option>
-                  <option value="Animation" {% if genre == 'Animation' %} selected {% endif %}>Animation</option>
-                  <option value="Children's" {% if genre == "Children's" %} selected {% endif %}>Children's</option>
-                  <option value="Comedy" {% if genre == 'Comedy' %} selected {% endif %}>Comedy</option>
-                  <option value="Crime" {% if genre == 'Crime' %} selected {% endif %}>Crime</option>
-                  <option value="Documentary" {% if genre == 'Documentary' %} selected {% endif %}>Documentary</option>
-                  <option value="Drama" {% if genre == 'Drama' %} selected {% endif %}>Drama</option>
-                  <option value="Fantasy" {% if genre == 'Fantasy' %} selected {% endif %}>Fantasy</option>
-                  <option value="Film-Noir" {% if genre == 'Film-Noir' %} selected {% endif %}>Film-Noir</option>
-                  <option value="Horror" {% if genre == 'Horror' %} selected {% endif %}>Horror</option>
-                  <option value="Musical" {% if genre == 'Musical' %} selected {% endif %}>Musical</option>
-                  <option value="Mystery" {% if genre == 'Mystery' %} selected {% endif %}>Mystery</option>
-                  <option value="Romance" {% if genre == 'Romance' %} selected {% endif %}>Romance</option>
-                  <option value="Sci-Fi" {% if genre == 'Sci-Fi' %} selected {% endif %}>Sci-Fi</option>
-                  <option value="Thriller" {% if genre == 'Thriller' %} selected {% endif %}>Thriller</option>
-                  <option value="War" {% if genre == 'War' %} selected {% endif %}>War</option>
-                  <option value="Western" {% if genre == 'Western' %} selected {% endif %}>Western</option>
-                  <!-- Add other genres here -->
-                  <!-- You can also dynamically generate options using JavaScript or Python -->
-                </select>
-                <br>
-                <input type="submit" value="Get Recommendations" class="btn btn-primary" style="float:right">
-              </form>
-
-    {% if show_div %}
-
-    <div style="margin-top: 30px">
-        <h2>Top 5 Movies in {{genre}}</h2>
-          <div class="container">
+  <div class="container-fluid">
     <div class="row">
-        {% for movie in top_movies %}
-        <div class="col-md-2 mb-4">
-            <div class="text-center" >
-                <img src="{{ movie['image_url'] }}" alt="{{ movie['title'] }}" class="img-fluid mb-2">
-                <p class="mb-1">{{ movie['title'] }}</p>
-            </div>
+      <!-- Sidebar -->
+      <div class="col-md-2 bg-dark sidebar_container p-0">
+        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical" style="margin-top:35px">
+          <button style="margin-bottom:10px" class="nav-link active" id="v-pills-system1-tab" data-bs-toggle="pill" data-bs-target="#v-pills-system1" type="button" role="tab" aria-controls="v-pills-system1" aria-selected="true">Recommender by Genre</button>
+          <button class="nav-link" id="v-pills-system2-tab" data-bs-toggle="pill" data-bs-target="#v-pills-system2" type="button" role="tab" aria-controls="v-pills-system2" aria-selected="false" onclick="fetchMovies()">Recommender by Rating</button>
         </div>
-        {% endfor %}
-    </div>
-    </div>
-
-        </div>
-    {% endif %}
-
-
-          </div>
-          <div class="tab-pane fade" id="v-pills-system2" role="tabpanel" aria-labelledby="v-pills-system2-tab">
-            <!-- System 2 Content (Blank for now) -->
-            <!-- You can add content related to System 2 here -->
-            <h2 style="margin-top:20px">Rate Movies for Recommendations</h2>
-
-                  <div class="card" style="">
-                    <div class="card-body">
-                      <div class="container sample_movies">
-                        <div class="row sample_movie" id="movieContainer">
-                          <!-- Movie data will be displayed here -->
-                        </div>
+      </div>
+        <!-- Content -->
+      <div class="col-md-9" style="margin-left: 32px; margin-top:25px; zoom:.8">
+          <div class="tab-content" id="v-pills-tabContent">
+              <div class="tab-pane fade show active" id="v-pills-system1" role="tabpanel" aria-labelledby="v-pills-system1-tab">
+                <!-- System 1 Content -->
+                <h2 style="margin-top:20px">Select a Genre for Movie Recommendations</h2>
+                  <form action="/recommend" method="get">
+                    <label for="genreSelect" class="col-sm-2 col-form-label">Choose a genre:</label>
+                    <select id="genreSelect" name="genre" class="form-select">
+                      <option value="Action" {% if genre == 'Action' %} selected {% endif %}>Action</option>
+                      <option value="Adventure" {% if genre == 'Adventure' %} selected {% endif %}>Adventure</option>
+                      <option value="Animation" {% if genre == 'Animation' %} selected {% endif %}>Animation</option>
+                      <option value="Children's" {% if genre == "Children's" %} selected {% endif %}>Children's</option>
+                      <option value="Comedy" {% if genre == 'Comedy' %} selected {% endif %}>Comedy</option>
+                      <option value="Crime" {% if genre == 'Crime' %} selected {% endif %}>Crime</option>
+                      <option value="Documentary" {% if genre == 'Documentary' %} selected {% endif %}>Documentary</option>
+                      <option value="Drama" {% if genre == 'Drama' %} selected {% endif %}>Drama</option>
+                      <option value="Fantasy" {% if genre == 'Fantasy' %} selected {% endif %}>Fantasy</option>
+                      <option value="Film-Noir" {% if genre == 'Film-Noir' %} selected {% endif %}>Film-Noir</option>
+                      <option value="Horror" {% if genre == 'Horror' %} selected {% endif %}>Horror</option>
+                      <option value="Musical" {% if genre == 'Musical' %} selected {% endif %}>Musical</option>
+                      <option value="Mystery" {% if genre == 'Mystery' %} selected {% endif %}>Mystery</option>
+                      <option value="Romance" {% if genre == 'Romance' %} selected {% endif %}>Romance</option>
+                      <option value="Sci-Fi" {% if genre == 'Sci-Fi' %} selected {% endif %}>Sci-Fi</option>
+                      <option value="Thriller" {% if genre == 'Thriller' %} selected {% endif %}>Thriller</option>
+                      <option value="War" {% if genre == 'War' %} selected {% endif %}>War</option>
+                      <option value="Western" {% if genre == 'Western' %} selected {% endif %}>Western</option>
+                    </select>
+                    <br>
+                    <input type="submit" value="Get Recommendations" class="btn btn-primary" style="float:right">
+                  </form>
+                {% if show_div %}
+                  <div style="margin-top: 30px">
+                    <h2>Top 5 Movies in {{genre}}</h2>
+                    <div class="container">
+                      <div class="row">
+                          {% for movie in top_movies %}
+                          <div class="col-md-2 mb-4">
+                              <div class="text-center" >
+                                  <img src="{{ movie['image_url'] }}" alt="{{ movie['title'] }}" class="img-fluid mb-2">
+                                  <p class="mb-1">{{ movie['title'] }}</p>
+                              </div>
+                          </div>
+                          {% endfor %}
                       </div>
                     </div>
                   </div>
-
-                  <div class="submitButton">
-                    <button id="submitButton" class="btn btn-primary mt-3" onclick="submitRatings()" style="float:right">Submit Ratings</button>
-                  </div>
-
-                    <div class="pred_movies" id="predictedMoviesContainer">
+                {% endif %}
+              </div>
+            <div class="tab-pane fade" id="v-pills-system2" role="tabpanel" aria-labelledby="v-pills-system2-tab">
+              <!-- System 2 Content -->
+              <h2 style="margin-top:20px">Rate Movies for Recommendations</h2>
+              <div class="card" style="">
+                <div class="card-body">
+                  <div class="container sample_movies">
+                    <div class="row sample_movie" id="movieContainer">
+                      <!-- Movie data will be displayed here -->
                     </div>
-
-                  <div class="addRecsButton">
-                    <button id="addRecsButton" class="btn btn-primary mt-3" onclick="AdditionalRecs()" style="float:right;visibility:hidden">Additional Recommendations</button>
                   </div>
-
-                    <div class="pred_movies" id="predictedMoviesContainer2">
-                    </div>
+                </div>
+              </div>
+              <div class="submitButton">
+                <button id="submitButton" class="btn btn-primary mt-3" onclick="submitRatings()" style="float:right">Submit Ratings</button>
+              </div>
+              <div class="pred_movies" id="predictedMoviesContainer">
+              </div>
+              <div class="addRecsButton">
+                <button id="addRecsButton" class="btn btn-primary mt-3" onclick="AdditionalRecs()" style="float:right;visibility:hidden">Additional Recommendations</button>
+              </div>
+              <div class="pred_movies" id="predictedMoviesContainer2">
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
