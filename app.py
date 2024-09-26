@@ -23,25 +23,8 @@ def index():
 # logic for creating popular_movies_df in listed in the HTML report 
 def get_addtional_movies_IBCF(ratings_data):
     movie_ids = []
-    # get movie ids rated by the user
-    for key in ratings_data:
-        movie_id = re.search(r'\d+', key).group()  # Extract digits from the key
-        movie_ids.append(int(movie_id))  # Append the extracted movie ID as an integer to the list
 
     popular_movies = pd.read_csv("popular_movies_df.csv")
-    
-    # Filter out movie IDs from popular_movies DataFrame
-    popular_movies_excluded = popular_movies[~popular_movies['movie_id'].isin(movie_ids)]
-    
-  # Select the top 20 records from popular_movies_excluded, this will be used as the addication reccomendations
-    additional_recs = popular_movies_excluded.iloc[:20]
-
-    # Extract the 'movie_id' column and convert it to strings with 'm' prefix
-    additional_recs = additional_recs[['movie_id']]
-    additional_recs['movie_id'] = 'm' + additional_recs['movie_id'].astype(str)
-
-    additional_recs.to_csv('add_recs_movies.csv', index=False)
-    
     return additional_recs
 
 # myIBCF takes movies rated by the user and generates predictions
@@ -62,32 +45,6 @@ def myIBCF(ratings_data):
     #Load similarity matrix
     S = pd.read_csv("modified_similarity_matrix.csv")
     S = pd.DataFrame(S)
-    
-    n = len(w)  # Get the length of the input vector
-    preds = np.zeros(n)  # Initialize an array for predictions
-    w_present = ~np.isnan(w) * 1  # Create a binary mask indicating present values in the input vector 'w'
-
-    for l in range(n):
-        # Check if the movie represented by index 'l' has not been rated by the user 'w'
-        if np.isnan(w[l]):
-            indices = np.where(~np.isnan(S.iloc[l, :]))[0]  # Find indices of nearest neighbors for movie 'l'
-
-            # Initialize variables to compute weighted sums
-            weighted_sum_present = 0
-            weighted_sum_nonNA = 0
-
-            # Calculate weighted sums for the movie 'l' based on its neighbors
-            for i in indices:
-                if not(math.isnan(w[i])):
-                    weighted_sum_nonNA += S.iloc[l, i] * w_present[i]
-                    weighted_sum_present += S.iloc[l, i] * w[i]
-
-            # Compute the prediction for movie 'l'
-            if weighted_sum_nonNA == 0:
-                preds[l] = 0
-            else:
-                preds[l] = (1 / weighted_sum_nonNA) * weighted_sum_present
-                
     non_nan_count = sum(1 for pred in preds if not math.isnan(pred))
     # non_nan_count = 10
 
@@ -151,16 +108,6 @@ def recommend():
 
     return render_template('index.html', top_movies=dict_list_recs, show_div=True, genre=selected_genre)
 
-# takes in preds from IBCF and returns the predicted movie title, movie id and the movie poster
-def get_pred_movies(preds):
-    preds_parsed = preds.map(lambda x: int(x[1:]))
-    data['movie_id'] = data['movie_id'].astype(int)
-    filtered_df = data[data['movie_id'].isin(preds_parsed)]
-    filtered_df = filtered_df.set_index('movie_id')
-    filtered_df = filtered_df.loc[preds_parsed]
-    dict_list = filtered_df.to_dict(orient='records')
-    return dict_list
-
 # method is called when user clicks additional movies button
 # logic for creating add_recs_movies in listed in the HTML report 
 @app.route('/additional_recs', methods=['get'])
@@ -181,10 +128,6 @@ def additional_recs():
 # logic for creating popular_movies_df in listed in the HTML report 
 def get_most_popular_movies(ratings_data):
     movie_ids = []
-    # get movie ids rated by the user
-    for key in ratings_data:
-        movie_id = re.search(r'\d+', key).group()  # Extract digits from the key
-        movie_ids.append(int(movie_id))  # Append the extracted movie ID as an integer to the list
 
     popular_movies = pd.read_csv("popular_movies_df.csv")
     
@@ -211,19 +154,6 @@ def get_most_popular_movies(ratings_data):
 def submit_ratings():
     # get ratings submitted by user
     ratings_data = request.json
-
-    # print(ratings_data)
-    # if the user rates less than 10 movies, recommed the most popular moives
-    if len(ratings_data) < 2:
-        return jsonify({'pred_movies': get_most_popular_movies(ratings_data)})
-    
-    # if the user rates aleast 2 movies call IBCF  
-    preds = myIBCF(ratings_data)
-    # print(preds)      
-
-    # if IBCF had less 10 nonNA predictions then preds is empty and we reccomed most popular movies to the user
-    if len(preds) <10:
-        return jsonify({'pred_movies': get_most_popular_movies(ratings_data)})
         
     # take IBCF predictions and get movie titles and posters
     dict_list = get_pred_movies(preds)
